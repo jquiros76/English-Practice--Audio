@@ -253,56 +253,38 @@ body { background: #070d1a; color: #7a90b8; font-family: 'Outfit', sans-serif; m
 <script>
 
 // ─── SPEECH SYNTHESIS HELPER ──────────────────────────────────────────────────
-
 const cache = {};
 
-exports.handler = async (event) => {
-  try {
-    const { text } = JSON.parse(event.body);
+async function speak(text, btn) {
+  const audio = document.getElementById("player");
+  const key = "tts_" + text;
 
-    // 🔥 SI YA EXISTE → NO LLAMA A OPENAI
-    if (cache[text]) {
-      return {
-        statusCode: 200,
-        body: JSON.stringify({ audio: cache[text] })
-      };
-    }
+  if (btn) btn.textContent = '⏳';
 
-    // 🔥 SI NO EXISTE → GENERA
-    const res = await fetch("https://api.openai.com/v1/audio/speech", {
-      method: "POST",
-      headers: {
-        "Authorization": `Bearer ${process.env.OPENAI_API_KEY}`,
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({
-        model: "gpt-4o-mini-tts",
-        input: text,
-        voice: "nova",
-        response_format: "mp3"
-      })
-    });
-
-    const buffer = await res.arrayBuffer();
-    const base64 = Buffer.from(buffer).toString("base64");
-
-    const audio = `data:audio/mp3;base64,${base64}`;
-
-    // 🔥 GUARDA EN CACHE GLOBAL
-    cache[text] = audio;
-
-    return {
-      statusCode: 200,
-      body: JSON.stringify({ audio })
-    };
-
-  } catch (error) {
-    return {
-      statusCode: 500,
-      body: JSON.stringify({ error: error.message })
-    };
+  // 🔥 LOCAL STORAGE
+  const saved = localStorage.getItem(key);
+  if (saved) {
+    audio.src = saved;
+    audio.play();
+    if (btn) btn.textContent = '▶';
+    return;
   }
-};
+
+  const res = await fetch('/.netlify/functions/tts', {
+    method: 'POST',
+    headers: {'Content-Type':'application/json'},
+    body: JSON.stringify({ text })
+  });
+
+  const data = await res.json();
+
+  localStorage.setItem(key, data.audio);
+
+  audio.src = data.audio;
+  audio.play();
+
+  if (btn) btn.textContent = '▶';
+}
 
 // ─── SPEECH RECOGNITION ───────────────────────────────────────────────────────
 const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
