@@ -285,14 +285,14 @@ async function speak(text, btn) {
   audio.src = data.audio;
   audio.play();
 
-  (btn) btn.textContent = '▶';
+ if (btn) btn.textContent = '▶';
 }
    
 // ─── SPEECH RECOGNITION ───────────────────────────────────────────────────────
 const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
 
 function startRecognition(targetText, cardId, qi, mi) {
-  (!SpeechRecognition) {
+if  (!SpeechRecognition) {
     const ns = document.getElementById(`nosupport-${mi}-${qi}`);
     (ns) ns.style.display = 'block';
     return;
@@ -315,7 +315,7 @@ function startRecognition(targetText, cardId, qi, mi) {
     const target = targetText.toLowerCase().trim();
     const best = heard[0];
 
-    (resultEl) {
+  if  (resultEl) {
       resultEl.textContent = `Detecté: "${best}"`;
       resultEl.className = 'mic-result heard';
     }
@@ -327,7 +327,7 @@ function startRecognition(targetText, cardId, qi, mi) {
   rec.onerror = (e) => {
     micBtn.classList.remove('recording');
     micBtn.textContent = '🎤';
-    (statusEl) statusEl.textContent = e.error === 'not-allowed'
+  if  (statusEl) statusEl.textContent = e.error === 'not-allowed'
       ? '❌ Permiso de micrófono denegado'
       : '❌ No se pudo escuchar. Intenta de nuevo.';
   };
@@ -357,7 +357,7 @@ function preloadAudios(questions) {
     fetch('/.netlify/functions/tts', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ text: q.phrase })
+      body: JSON.stringify({ text: q.audio || q.phrase })
     });
   });
 }
