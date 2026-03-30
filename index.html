@@ -253,45 +253,46 @@ body { background: #0a0c12; color: #8892b0; font-family: 'Outfit', sans-serif; m
 
 <script>
 // ─── SPEECH SYNTHESIS HELPER ──────────────────────────────────────────────────
-const synth = window.speechSynthesis;
-let currentUtterance = null;
+// ─── AI AUDIO (MAKE + OPENAI) ────────────────────────────────────────────────
+let currentAudio = null;
 let currentPlayBtn = null;
-let speechRate = 0.85;
+let speechRate = 1;
 
 function speak(text, btn, onEnd) {
+  if (currentAudio) {
+    currentAudio.pause();
+    currentAudio = null;
+  }
+
   if (currentPlayBtn && currentPlayBtn !== btn) {
     currentPlayBtn.textContent = '▶';
     currentPlayBtn.classList.remove('playing');
   }
-  if (currentUtterance) { synth.cancel(); }
 
-  const utter = new SpeechSynthesisUtterance(text);
-  utter.lang = 'en-US';
-  utter.rate = speechRate;
-  utter.pitch = 1;
+  if (btn) {
+    btn.textContent = '⏳';
+    btn.classList.add('playing');
+  }
 
-  // Try to get an English voice
-  const voices = synth.getVoices();
-  const enVoice = voices.find(v => v.lang.startsWith('en') && v.name.includes('Google'))
-    || voices.find(v => v.lang.startsWith('en-US'))
-    || voices.find(v => v.lang.startsWith('en'));
-  if (enVoice) utter.voice = enVoice;
+  const url = "https://hook.us2.make.com/ejxs48skeiptewjttjtf34uumm5umwhj?text=" + encodeURIComponent(text);
 
-  utter.onstart = () => {
-    if (btn) { btn.textContent = '⏹'; btn.classList.add('playing'); }
-    currentPlayBtn = btn;
-  };
-  utter.onend = () => {
-    if (btn) { btn.textContent = '▶'; btn.classList.remove('playing'); }
-    currentUtterance = null; currentPlayBtn = null;
+  const audio = new Audio(url);
+  audio.playbackRate = speechRate;
+
+  currentAudio = audio;
+  currentPlayBtn = btn;
+
+  audio.onended = () => {
+    if (btn) {
+      btn.textContent = '▶';
+      btn.classList.remove('playing');
+    }
+    currentAudio = null;
+    currentPlayBtn = null;
     if (onEnd) onEnd();
   };
-  utter.onerror = () => {
-    if (btn) { btn.textContent = '▶'; btn.classList.remove('playing'); }
-  };
 
-  currentUtterance = utter;
-  synth.speak(utter);
+  audio.play();
 }
 
 // ─── SPEECH RECOGNITION ───────────────────────────────────────────────────────
