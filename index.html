@@ -254,51 +254,55 @@ body { background: #070d1a; color: #7a90b8; font-family: 'Outfit', sans-serif; m
 
 // ─── SPEECH SYNTHESIS HELPER ──────────────────────────────────────────────────
 
-// speechRate arranca en 0.6 para coincidir con el botón 🐢 activo por defecto
-let speechRate = 0.6;
-let _currentPlayBtn = null;
+const cache = {};
 
-function speak(text, btn, onEnd) {
-  const audio = document.getElementById("player");
+exports.handler = async (event) => {
+  try {
+    const { text } = JSON.parse(event.body);
 
-  // Restaurar botón anterior si existe
-  if (_currentPlayBtn && _currentPlayBtn !== btn) {
-    _currentPlayBtn.textContent = '▶';
-    _currentPlayBtn.classList.remove('playing');
+    // 🔥 SI YA EXISTE → NO LLAMA A OPENAI
+    if (cache[text]) {
+      return {
+        statusCode: 200,
+        body: JSON.stringify({ audio: cache[text] })
+      };
+    }
+
+    // 🔥 SI NO EXISTE → GENERA
+    const res = await fetch("https://api.openai.com/v1/audio/speech", {
+      method: "POST",
+      headers: {
+        "Authorization": `Bearer ${process.env.OPENAI_API_KEY}`,
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        model: "gpt-4o-mini-tts",
+        input: text,
+        voice: "nova",
+        response_format: "mp3"
+      })
+    });
+
+    const buffer = await res.arrayBuffer();
+    const base64 = Buffer.from(buffer).toString("base64");
+
+    const audio = `data:audio/mp3;base64,${base64}`;
+
+    // 🔥 GUARDA EN CACHE GLOBAL
+    cache[text] = audio;
+
+    return {
+      statusCode: 200,
+      body: JSON.stringify({ audio })
+    };
+
+  } catch (error) {
+    return {
+      statusCode: 500,
+      body: JSON.stringify({ error: error.message })
+    };
   }
-
-  // Detener audio que esté reproduciéndose
-  audio.pause();
-  audio.src = '';
-
-  const url = "https://hook.us2.make.com/ejxs48skeiptewjttjtf34uumm5umwhj?text=" + encodeURIComponent(text);
-
-  if (btn) {
-    btn.textContent = '⏳';
-    btn.classList.add('playing');
-    _currentPlayBtn = btn;
-  }
-
-  audio.src = url;
-  audio.playbackRate = speechRate;
-
-  audio.play().catch((err) => {
-    console.log("Error al reproducir:", err);
-    if (btn) { btn.textContent = '▶'; btn.classList.remove('playing'); }
-  });
-
-  audio.onended = () => {
-    if (btn) { btn.textContent = '▶'; btn.classList.remove('playing'); }
-    _currentPlayBtn = null;
-    if (onEnd) onEnd();
-  };
-
-  audio.onerror = () => {
-    console.log("Error cargando audio");
-    if (btn) { btn.textContent = '▶'; btn.classList.remove('playing'); }
-    _currentPlayBtn = null;
-  };
-}
+};
 
 // ─── SPEECH RECOGNITION ───────────────────────────────────────────────────────
 const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
