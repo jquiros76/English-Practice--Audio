@@ -265,6 +265,7 @@ async function speak(text, btn) {
   const saved = localStorage.getItem(key);
   if (saved) {
     audio.src = saved;
+     audio.playbackRate = speechRate;
     audio.play();
     if (btn) btn.textContent = '▶';
     return;
@@ -281,6 +282,7 @@ async function speak(text, btn) {
   localStorage.setItem(key, data.audio);
 
   audio.src = data.audio;
+   audio.playbackRate = speechRate;
   audio.play();
 
   if (btn) btn.textContent = '▶';
@@ -789,9 +791,9 @@ function buildCard(q, mi, qi) {
         </div>
       </div>
       <div class="mic-box">
-        <div class="mic-target">"${q.phrase}"</div>
+        <div class="mic-target">"${q.audio || q.phrase}"</div>
         <div class="mic-phonetic">${q.phonetic}</div>
-        <button class="mic-btn" id="mic-${mi}-${qi}" onclick="startRec('${q.phrase.replace(/'/g,"\\'")}',${mi},${qi})">🎤</button>
+        <button class="mic-btn" id="mic-${mi}-${qi}" onclick="startRec('${q.audio || q.phrase.replace(/'/g,"\\'")}',${mi},${qi})">🎤</button>
         <div class="mic-status" id="micstatus-${mi}-${qi}">Toca el micrófono y habla</div>
         <div class="mic-result" id="micresult-${mi}-${qi}"></div>
         <div class="no-support" id="nosupport-${mi}-${qi}">⚠️ Tu navegador no soporta reconocimiento de voz. Usa Chrome en Android o escritorio.</div>
