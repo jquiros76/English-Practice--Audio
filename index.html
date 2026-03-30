@@ -254,44 +254,39 @@ body { background: #070d1a; color: #7a90b8; font-family: 'Outfit', sans-serif; m
 
 // ─── SPEECH SYNTHESIS HELPER ──────────────────────────────────────────────────
 
+const cache = {};
+
 async function speak(text, btn) {
   const audio = document.getElementById("player");
+  const key = "tts_" + text;
 
-  if (btn) {
-    btn.textContent = '⏳';
-    btn.classList.add('playing');
-  }
+  if (btn) btn.textContent = '⏳';
 
-  try {
-    const res = await fetch('/.netlify/functions/tts', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({ text })
-    });
-
-    const data = await res.json();
-
-    audio.src = data.audio;
+  // 🔥 LOCAL STORAGE
+  const saved = localStorage.getItem(key);
+  if (saved) {
+    audio.src = saved;
     audio.play();
-
-    audio.onended = () => {
-      if (btn) {
-        btn.textContent = '▶';
-        btn.classList.remove('playing');
-      }
-    };
-
-  } catch (err) {
-    console.log("Error:", err);
-    if (btn) {
-      btn.textContent = '▶';
-      btn.classList.remove('playing');
-    }
+    if (btn) btn.textContent = '▶';
+    return;
   }
-}
 
+  const res = await fetch('/.netlify/functions/tts', {
+    method: 'POST',
+    headers: {'Content-Type':'application/json'},
+    body: JSON.stringify({ text })
+  });
+
+  const data = await res.json();
+
+  localStorage.setItem(key, data.audio);
+
+  audio.src = data.audio;
+  audio.play();
+
+  if (btn) btn.textContent = '▶';
+}
+   
 // ─── SPEECH RECOGNITION ───────────────────────────────────────────────────────
 const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
 
