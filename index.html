@@ -254,45 +254,19 @@ body { background: #0a0c12; color: #8892b0; font-family: 'Outfit', sans-serif; m
 <script>
 // ─── SPEECH SYNTHESIS HELPER ──────────────────────────────────────────────────
 
-  <audio id="player"></audio>
+ <audio id="player" controls style="width:100%; margin-top:10px;"></audio>
   
 function speak(text, btn, onEnd) {
   const audio = document.getElementById("player");
 
-  if (btn) {
-    btn.textContent = '⏳';
-    btn.classList.add('playing');
-  }
-
   const url = "https://hook.us2.make.com/ejxs48skeiptewjttjtf34uumm5umwhj?text=" + encodeURIComponent(text);
 
   audio.src = url;
-  audio.playbackRate = speechRate;
+  audio.load();
 
-  audio.play().then(() => {
-    // ok
-  }).catch(() => {
-    console.log("bloqueado, reintentando...");
-    setTimeout(() => {
-      audio.play().catch(()=>{});
-    }, 300);
-  });
-
-  audio.onended = () => {
-    if (btn) {
-      btn.textContent = '▶';
-      btn.classList.remove('playing');
-    }
-    if (onEnd) onEnd();
-  };
-
-  audio.onerror = () => {
-    console.log("error audio");
-    if (btn) {
-      btn.textContent = '▶';
-      btn.classList.remove('playing');
-    }
-  };
+  if (btn) {
+    btn.textContent = '▶ listo';
+  }
 }
 
 // ─── SPEECH RECOGNITION ───────────────────────────────────────────────────────
