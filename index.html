@@ -253,39 +253,60 @@ body { background: #070d1a; color: #7a90b8; font-family: 'Outfit', sans-serif; m
 <script>
 
 // ─── SPEECH SYNTHESIS HELPER ──────────────────────────────────────────────────
-const cache = {};
-
 async function speak(text, btn) {
   const audio = document.getElementById("player");
   const key = "tts_" + text;
 
   if (btn) btn.textContent = '⏳';
 
-  // 🔥 LOCAL STORAGE
-  const saved = localStorage.getItem(key);
-  if (saved) {
-    audio.src = saved;
-     audio.playbackRate = speechRate;
-    audio.play();
+  try {
+    // 🔥 CACHE LOCAL
+    const saved = localStorage.getItem(key);
+    if (saved) {
+      audio.src = saved;
+      audio.playbackRate = speechRate || 1;
+      await audio.play();
+      if (btn) btn.textContent = '▶';
+      return;
+    }
+
+    // 🔥 FETCH
+    const res = await fetch('/.netlify/functions/tts', {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({ text })
+    });
+
+    // 🔥 VALIDACIÓN
+    if (!res.ok) {
+      console.error("TTS error status:", res.status);
+      if (btn) btn.textContent = '❌';
+      return;
+    }
+
+    const data = await res.json();
+    console.log("TTS response:", data);
+
+    if (!data.audio) {
+      console.error("No audio en respuesta", data);
+      if (btn) btn.textContent = '❌';
+      return;
+    }
+
+    // 🔥 GUARDAR CACHE
+    localStorage.setItem(key, data.audio);
+
+    // 🔥 PLAY
+    audio.src = data.audio;
+    audio.playbackRate = speechRate || 1;
+    await audio.play();
+
     if (btn) btn.textContent = '▶';
-    return;
+
+  } catch (err) {
+    console.error("TTS FALLÓ:", err);
+    if (btn) btn.textContent = '❌';
   }
-
-  const res = await fetch('/.netlify/functions/tts', {
-    method: 'POST',
-    headers: {'Content-Type':'application/json'},
-    body: JSON.stringify({ text })
-  });
-
-  const data = await res.json();
-
-  localStorage.setItem(key, data.audio);
-
-  audio.src = data.audio;
-   audio.playbackRate = speechRate;
-  audio.play();
-
-  if (btn) btn.textContent = '▶';
 }
 
 // ─── SPEECH RECOGNITION ───────────────────────────────────────────────────────
