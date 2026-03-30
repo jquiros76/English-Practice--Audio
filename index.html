@@ -251,8 +251,10 @@ body { background: #070d1a; color: #7a90b8; font-family: 'Outfit', sans-serif; m
 <audio id="player" style="display:none"></audio>
 
 <script>
+   let speechRate = 1;
 
 // ─── SPEECH SYNTHESIS HELPER ──────────────────────────────────────────────────
+   
 async function speak(text, btn) {
   const audio = document.getElementById("player");
   const key = "tts_" + text;
