@@ -267,33 +267,37 @@ function speak(text, btn, onEnd) {
 
   const url = "https://hook.us2.make.com/ejxs48skeiptewjttjtf34uumm5umwhj?text=" + encodeURIComponent(text);
 
-  const audio = new Audio();
-  audio.src = url;
-  audio.preload = "auto";
+  const audio = new Audio(url);
+  audio.playbackRate = speechRate;
 
-  audio.oncanplaythrough = () => {
-    audio.play().catch(() => {
-      console.log("Play bloqueado");
-    });
-  };
+  currentAudio = audio;
 
-  audio.onerror = () => {
-    console.log("Error cargando audio");
-    if (btn) {
-      btn.textContent = '▶';
-      btn.classList.remove('playing');
-    }
-  };
+  // 👉 INTENTAR reproducir directamente
+  audio.play().then(() => {
+    // ok
+  }).catch(() => {
+    // fallback si el navegador bloquea
+    setTimeout(() => {
+      audio.play().catch(()=>{});
+    }, 300);
+  });
 
   audio.onended = () => {
     if (btn) {
       btn.textContent = '▶';
       btn.classList.remove('playing');
     }
+    currentAudio = null;
     if (onEnd) onEnd();
   };
 
-  currentAudio = audio;
+  audio.onerror = () => {
+    console.log("Error audio");
+    if (btn) {
+      btn.textContent = '▶';
+      btn.classList.remove('playing');
+    }
+  };
 }
 
 // ─── SPEECH RECOGNITION ───────────────────────────────────────────────────────
