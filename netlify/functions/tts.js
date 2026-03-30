@@ -1,7 +1,18 @@
+const cache = {};
+
 exports.handler = async (event) => {
   try {
     const { text } = JSON.parse(event.body);
 
+    // 🔥 SI YA EXISTE → NO LLAMA A OPENAI
+    if (cache[text]) {
+      return {
+        statusCode: 200,
+        body: JSON.stringify({ audio: cache[text] })
+      };
+    }
+
+    // 🔥 SI NO EXISTE → GENERA
     const res = await fetch("https://api.openai.com/v1/audio/speech", {
       method: "POST",
       headers: {
@@ -19,11 +30,14 @@ exports.handler = async (event) => {
     const buffer = await res.arrayBuffer();
     const base64 = Buffer.from(buffer).toString("base64");
 
+    const audio = `data:audio/mp3;base64,${base64}`;
+
+    // 🔥 GUARDA EN CACHE GLOBAL
+    cache[text] = audio;
+
     return {
       statusCode: 200,
-      body: JSON.stringify({
-        audio: `data:audio/mp3;base64,${base64}`
-      })
+      body: JSON.stringify({ audio })
     };
 
   } catch (error) {
