@@ -254,50 +254,42 @@ body { background: #070d1a; color: #7a90b8; font-family: 'Outfit', sans-serif; m
 
 // ─── SPEECH SYNTHESIS HELPER ──────────────────────────────────────────────────
 
-// speechRate arranca en 0.6 para coincidir con el botón 🐢 activo por defecto
-let speechRate = 0.6;
-let _currentPlayBtn = null;
-
-function speak(text, btn, onEnd) {
+async function speak(text, btn) {
   const audio = document.getElementById("player");
-
-  // Restaurar botón anterior si existe
-  if (_currentPlayBtn && _currentPlayBtn !== btn) {
-    _currentPlayBtn.textContent = '▶';
-    _currentPlayBtn.classList.remove('playing');
-  }
-
-  // Detener audio que esté reproduciéndose
-  audio.pause();
-  audio.src = '';
-
-  const url = "https://hook.us2.make.com/ejxs48skeiptewjttjtf34uumm5umwhj?text=" + encodeURIComponent(text);
 
   if (btn) {
     btn.textContent = '⏳';
     btn.classList.add('playing');
-    _currentPlayBtn = btn;
   }
 
-  audio.src = url;
-  audio.playbackRate = speechRate;
+  try {
+    const res = await fetch('/.netlify/functions/tts', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ text })
+    });
 
-  audio.play().catch((err) => {
-    console.log("Error al reproducir:", err);
-    if (btn) { btn.textContent = '▶'; btn.classList.remove('playing'); }
-  });
+    const data = await res.json();
 
-  audio.onended = () => {
-    if (btn) { btn.textContent = '▶'; btn.classList.remove('playing'); }
-    _currentPlayBtn = null;
-    if (onEnd) onEnd();
-  };
+    audio.src = data.audio;
+    audio.play();
 
-  audio.onerror = () => {
-    console.log("Error cargando audio");
-    if (btn) { btn.textContent = '▶'; btn.classList.remove('playing'); }
-    _currentPlayBtn = null;
-  };
+    audio.onended = () => {
+      if (btn) {
+        btn.textContent = '▶';
+        btn.classList.remove('playing');
+      }
+    };
+
+  } catch (err) {
+    console.log("Error:", err);
+    if (btn) {
+      btn.textContent = '▶';
+      btn.classList.remove('playing');
+    }
+  }
 }
 
 // ─── SPEECH RECOGNITION ───────────────────────────────────────────────────────
