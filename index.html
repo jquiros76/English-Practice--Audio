@@ -250,6 +250,7 @@ body { background: #070d1a; color: #7a90b8; font-family: 'Outfit', sans-serif; m
 
 <audio id="player" style="display:none"></audio>
 
+ 
 <script>
 
 // ─── SPEECH SYNTHESIS HELPER ──────────────────────────────────────────────────
@@ -267,7 +268,7 @@ async function speak(text, btn) {
   if (saved) {
     audio.src = saved;
     audio.play();
-    if (btn) btn.textContent = '▶';
+    (btn) btn.textContent = '▶';
     return;
   }
 
@@ -284,16 +285,16 @@ async function speak(text, btn) {
   audio.src = data.audio;
   audio.play();
 
-  if (btn) btn.textContent = '▶';
+  (btn) btn.textContent = '▶';
 }
    
 // ─── SPEECH RECOGNITION ───────────────────────────────────────────────────────
 const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
 
 function startRecognition(targetText, cardId, qi, mi) {
-  if (!SpeechRecognition) {
+  (!SpeechRecognition) {
     const ns = document.getElementById(`nosupport-${mi}-${qi}`);
-    if (ns) ns.style.display = 'block';
+    (ns) ns.style.display = 'block';
     return;
   }
   const rec = new SpeechRecognition();
@@ -307,14 +308,14 @@ function startRecognition(targetText, cardId, qi, mi) {
 
   micBtn.classList.add('recording');
   micBtn.textContent = '⏹';
-  if (statusEl) statusEl.textContent = '🔴 Escuchando…';
+  (statusEl) statusEl.textContent = '🔴 Escuchando…';
 
   rec.onresult = (e) => {
     const heard = Array.from(e.results[0]).map(r => r.transcript.toLowerCase().trim());
     const target = targetText.toLowerCase().trim();
     const best = heard[0];
 
-    if (resultEl) {
+    (resultEl) {
       resultEl.textContent = `Detecté: "${best}"`;
       resultEl.className = 'mic-result heard';
     }
@@ -326,7 +327,7 @@ function startRecognition(targetText, cardId, qi, mi) {
   rec.onerror = (e) => {
     micBtn.classList.remove('recording');
     micBtn.textContent = '🎤';
-    if (statusEl) statusEl.textContent = e.error === 'not-allowed'
+    (statusEl) statusEl.textContent = e.error === 'not-allowed'
       ? '❌ Permiso de micrófono denegado'
       : '❌ No se pudo escuchar. Intenta de nuevo.';
   };
@@ -334,7 +335,7 @@ function startRecognition(targetText, cardId, qi, mi) {
   rec.onend = () => {
     micBtn.classList.remove('recording');
     micBtn.textContent = '🎤';
-    if (statusEl && statusEl.textContent === '🔴 Escuchando…')
+    (statusEl && statusEl.textContent === '🔴 Escuchando…')
       statusEl.textContent = 'Toca el micrófono para intentar de nuevo.';
   };
 
@@ -345,17 +346,30 @@ function startRecognition(targetText, cardId, qi, mi) {
 
 function similarity(a, b) {
   a = a.replace(/[^a-z0-9 ]/g,''); b = b.replace(/[^a-z0-9 ]/g,'');
-  if (a === b) return 1;
+  (a === b) return 1;
   const wordsA = a.split(' '); const wordsB = b.split(' ');
   const common = wordsA.filter(w => wordsB.includes(w)).length;
   return (2 * common) / (wordsA.length + wordsB.length);
 }
-  
+
+function preloadAudios(questions) {
+  questions.forEach(q => {
+    fetch('/.netlify/functions/tts', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ text: q.phrase })
+    });
+  });
+}
+   
 // ─── DATA ─────────────────────────────────────────────────────────────────────
 const MODULES = [
-
+  
+   
 // ══ M1 – LISTENING: VERB TO BE ══
+   
 {
+   
   num:'01', title:'Listening – Verb To Be',
   desc:'Escucha y selecciona la oración correcta',
   qs:[
@@ -707,6 +721,10 @@ const MODULES = [
 }
 
 ]; // end MODULES
+   
+   MODULES.forEach(module => {
+  preloadAudios(module.questions);
+});
 
 // ─── STATE ────────────────────────────────────────────────────────────────────
 let state = {};
@@ -754,7 +772,7 @@ function buildCard(q, mi, qi) {
 
   let pillClass='', pillLabel='', body='';
 
-  if (q.type==='listen') {
+  (q.type==='listen') {
     pillClass='pill-listen'; pillLabel='🎧 Listening';
     body = `
       <div class="audio-box">
