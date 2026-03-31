@@ -48,11 +48,11 @@ exports.handler = async (event) => {
         "Content-Type": "application/json"
       },
       body: JSON.stringify({
-        model: "gpt-4o-mini-tts",
-        input: text,
-        voice: "nova"
-      })
-    });
+  model: "gpt-4o-mini-tts",
+  input: text,
+  voice: "nova",
+  format: "mp3"
+})
 
     if (!response.ok) {
       const errText = await response.text();
