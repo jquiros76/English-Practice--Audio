@@ -11,7 +11,7 @@
    surface   #0d1526   superficies secundarias
    card      #111e33   tarjetas
    border    #1e2e4a   bordes sutiles
-   ink       #dce8ff   texto principalonclick="startRecognition(${JSON.stringify(q.audio || q.phrase)},${mi},${qi})"
+   ink       #dce8ff   texto principal
    ink2      #7a90b8   texto secundario
    accent    #38bdf8   azul cielo eléctrico  (reemplaza violeta)
    green     #34d399   verde esmeralda  (correcto)
@@ -903,7 +903,7 @@ function pickOpt(mi, qi, oi) {
 // ─── SPEAKING ANSWER ──────────────────────────────────────────────────────────
 function startRecognition(phrase, mi, qi) {
   if (state[mi][qi].answered) return;
-  ognition(phrase, `card-${mi}-${qi}`, qi, mi);
+  runRecognition(phrase, `card-${mi}-${qi}`, qi, mi);
 }
 function gradeMic(mi, qi, correct, heard, target) {
   const q = MODULES[mi].qs[qi];
