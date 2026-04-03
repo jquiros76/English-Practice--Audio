@@ -11,7 +11,7 @@
    surface   #0d1526   superficies secundarias
    card      #111e33   tarjetas
    border    #1e2e4a   bordes sutiles
-   ink       #dce8ff   texto principal
+   ink       #dce8ff   texto principalonclick="startRecognition(${JSON.stringify(q.audio || q.phrase)},${mi},${qi})"
    ink2      #7a90b8   texto secundario
    accent    #38bdf8   azul cielo eléctrico  (reemplaza violeta)
    green     #34d399   verde esmeralda  (correcto)
@@ -326,7 +326,7 @@ async function speak(text, btn) {
 // ─── SPEECH RECOGNITION ───────────────────────────────────────────────────────
 const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
 
-function startRecognition(targetText, cardId, qi, mi) {
+function ognition(targetText, cardId, qi, mi) {
   if (!SpeechRecognition) {
     const ns = document.getElementById(`nosupport-${mi}-${qi}`);
     if (ns) ns.style.display = 'block';
@@ -828,7 +828,7 @@ function buildCard(q, mi, qi) {
       <div class="mic-box">
         <div class="mic-target">"${q.audio || q.phrase}"</div>
         <div class="mic-phonetic">${q.phonetic}</div>
-        <button class="mic-btn" id="mic-${mi}-${qi}" onclick="startRecognition('${q.audio || q.phrase.replace(/'/g,"\\'")}',${mi},${qi})">🎤</button>
+        <button class="mic-btn" id="mic-${mi}-${qi}" onclick= "startRecognition(${JSON.stringify(q.audio || q.phrase)},${mi},${qi})"
         <div class="mic-status" id="micstatus-${mi}-${qi}">Toca el micrófono y habla</div>
         <div class="mic-result" id="micresult-${mi}-${qi}"></div>
         <div class="no-support" id="nosupport-${mi}-${qi}">⚠️ Tu navegador no soporta reconocimiento de voz. Usa Chrome en Android o escritorio.</div>
