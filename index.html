@@ -296,17 +296,15 @@ async function speak(text, btn) {
     }
 
     // 🔥 GUARDAR CACHE
-    const audioData = `data:audio/mp3;base64,${data.audio}`;
+const audioData = data.audio;
 localStorage.setItem(key, audioData);
 
-   // 🔥 PLAY
+// 🔥 PLAY
+audio.pause();
+audio.currentTime = 0;
+
 audio.src = audioData;
 audio.playbackRate = speechRate || 1;
-audio.load();
-
-await new Promise((resolve) => {
-  audio.oncanplaythrough = resolve;
-});
 
 try {
   await audio.play();
