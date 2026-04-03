@@ -389,22 +389,17 @@ rec.onresult = (e) => {
   const match = score >= 0.6;
 
   // 🎯 VISUAL TIPO DUOLINGO
-  resultEl.innerHTML = analysis.map(w => `
-  <span style="color:${w.correct ? '#22c55e' : '#ef4444'}; font-weight:600; margin-right:6px;">
-    ${w.word}
-  </span>
-`).join('') + `
-  <div style="margin-top:6px;color:#94a3b8;font-size:0.8rem">
-    Detecté: "${heard}"
-  </div>
-`;
-  }
+  if (resultEl) {
+  let html = "";
 
-  // 🔥 VALIDACIÓN
-  if (!heard || heard.length < 2) {
-    if (statusEl) statusEl.textContent = "❌ No se detectó voz clara";
-    return;
-  }
+  analysis.forEach(w => {
+    html += '<span style="color:' + (w.correct ? '#22c55e' : '#ef4444') + '; font-weight:600; margin-right:6px;">' + w.word + '</span>';
+  });
+
+  html += '<div style="margin-top:6px;color:#94a3b8;font-size:0.8rem">Detecté: "' + heard + '"</div>';
+
+  resultEl.innerHTML = html;
+}
 
   gradeMic(mi, qi, match, heard, targetText);
 };
