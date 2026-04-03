@@ -262,12 +262,20 @@ async function speak(text, btn) {
   if (btn) btn.textContent = '⏳';
 
   try {
-    // 🔥 CACHE LOCAL
+    // 🔥 CACHE
     const saved = localStorage.getItem(key);
     if (saved) {
+      audio.pause();
+      audio.currentTime = 0;
       audio.src = saved;
       audio.playbackRate = speechRate || 1;
-      await audio.play();
+
+      try {
+        await audio.play();
+      } catch (err) {
+        console.error("PLAY CACHE ERROR:", err);
+      }
+
       if (btn) btn.textContent = '▶';
       return;
     }
@@ -279,39 +287,42 @@ async function speak(text, btn) {
       body: JSON.stringify({ text })
     });
 
-    // 🔥 VALIDACIÓN
     if (!res.ok) {
-      console.error("TTS error status:", res.status);
+      console.error("TTS error:", res.status);
       if (btn) btn.textContent = '❌';
       return;
     }
 
     const data = await res.json();
-    console.log("TTS response:", data);
 
     if (!data.audio) {
-      console.error("No audio en respuesta", data);
+      console.error("No audio", data);
       if (btn) btn.textContent = '❌';
       return;
     }
 
-    // 🔥 GUARDAR CACHE
-const audioData = data.audio;
-localStorage.setItem(key, audioData);
+    // 🔥 GUARDAR
+    localStorage.setItem(key, data.audio);
 
-// 🔥 PLAY
-audio.pause();
-audio.currentTime = 0;
+    // 🔥 PLAY
+    audio.pause();
+    audio.currentTime = 0;
+    audio.src = data.audio;
+    audio.playbackRate = speechRate || 1;
 
-audio.src = audioData;
-audio.playbackRate = speechRate || 1;
+    try {
+      await audio.play();
+    } catch (err) {
+      console.error("PLAY ERROR:", err);
+    }
 
-try {
-  await audio.play();
-} catch (err) {
-  console.error("ERROR PLAY:", err);
-}
+    if (btn) btn.textContent = '▶';
+
+  } catch (err) {
+    console.error("TTS FALLÓ:", err);
+    if (btn) btn.textContent = '❌';
   }
+}
 // ─── SPEECH RECOGNITION ───────────────────────────────────────────────────────
 const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
 
