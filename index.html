@@ -845,7 +845,7 @@ data-text="${q.audio}">▶</button>
       <div class="mic-box">
         <div class="mic-target">"${q.audio || q.phrase}"</div>
         <div class="mic-phonetic">${q.phonetic}</div>
-       <button class="mic-btn" data-text="${(q.audio || q.phrase).replace(/"/g, '&quot;')}"  onclick="startRecognition(this.dataset.text,${mi},${qi})">🎤</button>
+      <button id="mic-${mi}-${qi}" class="mic-btn" data-text="${(q.audio || q.phrase).replace(/"/g, '&quot;')}" onclick="startRecognition(this.dataset.text,${mi},${qi})">🎤</button>
         <div class="mic-status" id="micstatus-${mi}-${qi}">Toca el micrófono y habla</div>
         <div class="mic-result" id="micresult-${mi}-${qi}"></div>
         <div class="no-support" id="nosupport-${mi}-${qi}">⚠️ Tu navegador no soporta reconocimiento de voz. Usa Chrome en Android o escritorio.</div>
