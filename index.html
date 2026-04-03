@@ -370,26 +370,49 @@ function runRecognition(targetText, cardId, qi, mi) {
   if (statusEl) statusEl.textContent = '🔴 Escuchando…';
 
   // 🎤 RESULTADO MEJORADO
-  rec.onresult = (e) => {
-    let transcript = "";
+rec.onresult = (e) => {
+  let transcript = "";
 
-    for (let i = e.resultIndex; i < e.results.length; i++) {
-      transcript += e.results[i][0].transcript;
-    }
+  for (let i = e.resultIndex; i < e.results.length; i++) {
+    transcript += e.results[i][0].transcript;
+  }
 
-    const heard = transcript.toLowerCase().trim();
-    const target = targetText.toLowerCase().trim();
+  const heard = transcript.toLowerCase().trim();
+  const target = targetText.toLowerCase().trim();
 
-    if (resultEl) {
-      resultEl.textContent = `Detecté: "${heard}"`;
-      resultEl.className = 'mic-result heard';
-    }
+  // 🔥 ANÁLISIS PALABRA POR PALABRA
+  const analysis = analyzeWords(heard, target);
 
-    // 🔥 VALIDACIÓN DE AUDIO
-    if (!heard || heard.length < 2) {
-      if (statusEl) statusEl.textContent = "❌ No se detectó voz clara";
-      return;
-    }
+  const correctCount = analysis.filter(w => w.correct).length;
+  const score = correctCount / analysis.length;
+
+  const match = score >= 0.6;
+
+  // 🎯 VISUAL TIPO DUOLINGO
+  if (resultEl) {
+    resultEl.innerHTML = analysis.map(w => `
+      <span style="
+        color:${w.correct ? '#22c55e' : '#ef4444'};
+        font-weight:600;
+        margin-right:6px;
+      ">
+        ${w.word}
+      </span>
+    `).join('') + `
+      <div style="margin-top:6px;color:#94a3b8;font-size:0.8rem">
+        Detecté: "${heard}"
+      </div>
+    `;
+  }
+
+  // 🔥 VALIDACIÓN
+  if (!heard || heard.length < 2) {
+    if (statusEl) statusEl.textContent = "❌ No se detectó voz clara";
+    return;
+  }
+
+  gradeMic(mi, qi, match, heard, targetText);
+};
 
     // 🔥 MÁS FLEXIBLE
     const match = similarity(heard, target) >= 0.6;
@@ -426,18 +449,39 @@ function runRecognition(targetText, cardId, qi, mi) {
 }
 
 // 🔎 COMPARACIÓN
+
 function similarity(a, b) {
-  a = a.replace(/[^a-z0-9 ]/g,'');
-  b = b.replace(/[^a-z0-9 ]/g,'');
+  a = a.replace(/[^a-z0-9 ]/g, "");
+  b = b.replace(/[^a-z0-9 ]/g, "");
 
   if (a === b) return 1;
 
-  const wordsA = a.split(' ');
-  const wordsB = b.split(' ');
+  const wordsA = a.split(" ");
+  const wordsB = b.split(" ");
 
   const common = wordsA.filter(w => wordsB.includes(w)).length;
 
   return (2 * common) / (wordsA.length + wordsB.length);
+}
+
+
+// 🧠 ANÁLISIS PALABRA POR PALABRA
+function analyzeWords(spoken, target) {
+  const clean = str => str.toLowerCase().replace(/[^a-z0-9 ]/g, "");
+
+  const spokenWords = clean(spoken).split(" ");
+  const targetWords = clean(target).split(" ");
+
+  return targetWords.map((word, i) => {
+    const said = spokenWords[i] || "";
+    const correct = said === word;
+
+    return {
+      word,
+      said,
+      correct
+    };
+  });
 }
   
 // ─── DATA ─────────────────────────────────────────────────────────────────────
