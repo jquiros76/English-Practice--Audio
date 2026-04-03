@@ -296,10 +296,11 @@ async function speak(text, btn) {
     }
 
     // 🔥 GUARDAR CACHE
-    localStorage.setItem(key, data.audio);
+    const audioData = `data:audio/mp3;base64,${data.audio}`;
+localStorage.setItem(key, audioData);
 
     // 🔥 PLAY
-    audio.src = data.audio;
+    audio.src = `data:audio/mp3;base64,${data.audio}`;
     audio.playbackRate = speechRate || 1;
     await audio.play();
 
