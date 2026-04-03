@@ -354,7 +354,7 @@ function runRecognition(targetText, cardId, qi, mi) {
   // 🔥 CONFIG MEJORADA
   rec.lang = 'en-US';
   rec.continuous = false;
-  rec.interimResults = true; // 🔥 CLAVE
+  rec.interimResults = true;
   rec.maxAlternatives = 5;
 
   const micBtn = document.querySelector(`#card-${mi}-${qi} .mic-btn`);
@@ -389,20 +389,15 @@ rec.onresult = (e) => {
   const match = score >= 0.6;
 
   // 🎯 VISUAL TIPO DUOLINGO
-  if (resultEl) {
-    resultEl.innerHTML = analysis.map(w => `
-      <span style="
-        color:${w.correct ? '#22c55e' : '#ef4444'};
-        font-weight:600;
-        margin-right:6px;
-      ">
-        ${w.word}
-      </span>
-    `).join('') + `
-      <div style="margin-top:6px;color:#94a3b8;font-size:0.8rem">
-        Detecté: "${heard}"
-      </div>
-    `;
+  resultEl.innerHTML = analysis.map(w => `
+  <span style="color:${w.correct ? '#22c55e' : '#ef4444'}; font-weight:600; margin-right:6px;">
+    ${w.word}
+  </span>
+`).join('') + `
+  <div style="margin-top:6px;color:#94a3b8;font-size:0.8rem">
+    Detecté: "${heard}"
+  </div>
+`;
   }
 
   // 🔥 VALIDACIÓN
