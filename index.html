@@ -264,21 +264,23 @@ async function speak(text, btn) {
   try {
     // 🔥 CACHE
     const saved = localStorage.getItem(key);
-    if (saved) {
-      audio.pause();
-      audio.currentTime = 0;
-      audio.src = saved;
-      audio.playbackRate = speechRate || 1;
+     
+    if (saved && saved.startsWith("data:audio")) {
+  audio.pause();
+  audio.currentTime = 0;
+  audio.src = saved;
+  audio.playbackRate = speechRate || 1;
 
-      try {
-        await audio.play();
-      } catch (err) {
-        console.error("PLAY CACHE ERROR:", err);
-      }
+  try {
+    await audio.play();
+  } catch (err) {
+    console.error("ERROR PLAY CACHE:", err);
+    localStorage.removeItem(key); // 🔥 elimina audio corrupto
+  }
 
-      if (btn) btn.textContent = '▶';
-      return;
-    }
+  if (btn) btn.textContent = '▶';
+  return;
+}
 
     // 🔥 FETCH
     const res = await fetch('/.netlify/functions/tts', {
