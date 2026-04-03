@@ -370,7 +370,8 @@ function runRecognition(targetText, cardId, qi, mi) {
   if (statusEl) statusEl.textContent = '🔴 Escuchando…';
 
   // 🎤 RESULTADO MEJORADO
-rec.onresult = (e) => {
+
+  rec.onresult = (e) => {
   let transcript = "";
 
   for (let i = e.resultIndex; i < e.results.length; i++) {
@@ -380,26 +381,18 @@ rec.onresult = (e) => {
   const heard = transcript.toLowerCase().trim();
   const target = targetText.toLowerCase().trim();
 
-  // 🔥 ANÁLISIS PALABRA POR PALABRA
-  const analysis = analyzeWords(heard, target);
-
-  const correctCount = analysis.filter(w => w.correct).length;
-  const score = correctCount / analysis.length;
-
-  const match = score >= 0.6;
-
-  // 🎯 VISUAL TIPO DUOLINGO
+  // Mostrar lo que detectó (simple)
   if (resultEl) {
-  let html = "";
+    resultEl.textContent = 'Detecté: "' + heard + '"';
+  }
 
-  analysis.forEach(w => {
-    html += '<span style="color:' + (w.correct ? '#22c55e' : '#ef4444') + '; font-weight:600; margin-right:6px;">' + w.word + '</span>';
-  });
+  // Validación básica
+  if (!heard || heard.length < 2) {
+    if (statusEl) statusEl.textContent = "No se detectó voz clara";
+    return;
+  }
 
-  html += '<div style="margin-top:6px;color:#94a3b8;font-size:0.8rem">Detecté: "' + heard + '"</div>';
-
-  resultEl.innerHTML = html;
-}
+  const match = similarity(heard, target) >= 0.6;
 
   gradeMic(mi, qi, match, heard, targetText);
 };
