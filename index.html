@@ -903,7 +903,11 @@ function pickOpt(mi, qi, oi) {
 
 // ─── SPEAKING ANSWER ──────────────────────────────────────────────────────────
 function startRecognition(btn, phrase, mi, qi) {
+  if (!state[mi]) state[mi] = {};
+  if (!state[mi][qi]) state[mi][qi] = { answered: false, correct: false };
+
   if (state[mi][qi].answered) return;
+
   runRecognition(phrase, null, qi, mi);
 }
 function gradeMic(mi, qi, correct, heard, target) {
