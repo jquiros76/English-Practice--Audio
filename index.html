@@ -794,7 +794,8 @@ function buildCard(q, mi, qi) {
     pillClass='pill-listen'; pillLabel='🎧 Listening';
     body = `
       <div class="audio-box">
-        <button class="play-btn" id="play-${mi}-${qi}" onclick="playAudio('${q.audio.replace(/'/g,"\\'")}', this)">▶</button>
+        <button class="play-btn" id="play-${mi}-${qi}" onclick="playAudio(this.dataset.text, this)"
+data-text="${q.audio}">▶</button>
         <div class="audio-info">
           <div class="audio-label">Toca ▶ para escuchar la oración</div>
           <div class="audio-text-hidden" id="reveal-${mi}-${qi}">${q.audio}</div>
@@ -828,7 +829,8 @@ function buildCard(q, mi, qi) {
       <div class="mic-box">
         <div class="mic-target">"${q.audio || q.phrase}"</div>
         <div class="mic-phonetic">${q.phonetic}</div>
-        <button class="mic-btn" id="mic-${mi}-${qi}" onclick= "startRecognition(${JSON.stringify(q.audio || q.phrase)},${mi},${qi})"
+        <button class="mic-btn" id="mic-${mi}-${qi}" onclick= onclick="startRecognition(this.dataset.text,${mi},${qi})"
+data-text="${q.audio || q.phrase}"
         <div class="mic-status" id="micstatus-${mi}-${qi}">Toca el micrófono y habla</div>
         <div class="mic-result" id="micresult-${mi}-${qi}"></div>
         <div class="no-support" id="nosupport-${mi}-${qi}">⚠️ Tu navegador no soporta reconocimiento de voz. Usa Chrome en Android o escritorio.</div>
