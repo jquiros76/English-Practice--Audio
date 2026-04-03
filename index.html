@@ -353,7 +353,7 @@ function runRecognition(targetText, cardId, qi, mi) {
   rec.interimResults = false;
   rec.maxAlternatives = 5;
 
-  const micBtn = document.getElementById(`mic-${mi}-${qi}`);
+  const micBtn = document.querySelector(`#card-${mi}-${qi} .mic-btn`);
   const statusEl = document.getElementById(`micstatus-${mi}-${qi}`);
   const resultEl = document.getElementById(`micresult-${mi}-${qi}`);
 
@@ -902,9 +902,9 @@ function pickOpt(mi, qi, oi) {
 }
 
 // ─── SPEAKING ANSWER ──────────────────────────────────────────────────────────
-function startRecognition(phrase, mi, qi) {
+function startRecognition(btn, phrase, mi, qi) {
   if (state[mi][qi].answered) return;
-  runRecognition(phrase, qi, mi);
+  runRecognition(phrase, null, qi, mi);
 }
 function gradeMic(mi, qi, correct, heard, target) {
   const q = MODULES[mi].qs[qi];
