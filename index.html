@@ -414,12 +414,7 @@ rec.onresult = (e) => {
   gradeMic(mi, qi, match, heard, targetText);
 };
 
-    // 🔥 MÁS FLEXIBLE
-    const match = similarity(heard, target) >= 0.6;
-
-    gradeMic(mi, qi, match, heard, targetText);
-  };
-
+   
   rec.onerror = (e) => {
     micBtn.classList.remove('recording');
     micBtn.textContent = '🎤';
