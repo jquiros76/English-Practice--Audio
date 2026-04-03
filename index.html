@@ -300,7 +300,7 @@ async function speak(text, btn) {
 localStorage.setItem(key, audioData);
 
    // 🔥 PLAY
-audio.src = data.audio;
+audio.src = audioData;
 audio.playbackRate = speechRate || 1;
 audio.load();
 
