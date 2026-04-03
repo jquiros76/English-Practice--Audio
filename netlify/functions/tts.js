@@ -65,7 +65,7 @@ exports.handler = async (event) => {
     // 🔥 convertir audio a base64
     const arrayBuffer = await response.arrayBuffer();
     const base64 = Buffer.from(arrayBuffer).toString("base64");
-    const audio = `data:audio/mp3;base64,${base64}`;
+    const audio = `data:audio/mpeg;base64,${base64}`;
 
     // 🔥 guardar en cache
     cache[text] = audio;
