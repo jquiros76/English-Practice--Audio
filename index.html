@@ -341,7 +341,7 @@ async function speak(text, btn) {
 // ─── SPEECH RECOGNITION ───────────────────────────────────────────────────────
 const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
 
-function ognition(targetText, cardId, qi, mi) {
+function runRecognition(targetText, cardId, qi, mi) {
   if (!SpeechRecognition) {
     const ns = document.getElementById(`nosupport-${mi}-${qi}`);
     if (ns) ns.style.display = 'block';
@@ -903,9 +903,8 @@ function pickOpt(mi, qi, oi) {
 // ─── SPEAKING ANSWER ──────────────────────────────────────────────────────────
 function startRecognition(phrase, mi, qi) {
   if (state[mi][qi].answered) return;
-  startRecognition(phrase, `card-${mi}-${qi}`, qi, mi);
+  ognition(phrase, `card-${mi}-${qi}`, qi, mi);
 }
-
 function gradeMic(mi, qi, correct, heard, target) {
   const q = MODULES[mi].qs[qi];
   state[mi][qi] = {answered:true, correct};
