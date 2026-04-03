@@ -299,17 +299,19 @@ async function speak(text, btn) {
     const audioData = `data:audio/mp3;base64,${data.audio}`;
 localStorage.setItem(key, audioData);
 
-    // 🔥 PLAY
-    audio.src = `data:audio/mp3;base64,${data.audio}`;
-    audio.playbackRate = speechRate || 1;
-    await audio.play();
+   // 🔥 PLAY
+audio.src = data.audio;
+audio.playbackRate = speechRate || 1;
+audio.load();
 
-    if (btn) btn.textContent = '▶';
+await new Promise((resolve) => {
+  audio.oncanplaythrough = resolve;
+});
 
-  } catch (err) {
-    console.error("TTS FALLÓ:", err);
-    if (btn) btn.textContent = '❌';
-  }
+try {
+  await audio.play();
+} catch (err) {
+  console.error("ERROR PLAY:", err);
 }
 
 // ─── SPEECH RECOGNITION ───────────────────────────────────────────────────────
