@@ -348,58 +348,95 @@ function runRecognition(targetText, cardId, qi, mi) {
     if (ns) ns.style.display = 'block';
     return;
   }
+
   const rec = new SpeechRecognition();
+
+  // 🔥 CONFIG MEJORADA
   rec.lang = 'en-US';
-  rec.interimResults = false;
+  rec.continuous = false;
+  rec.interimResults = true; // 🔥 CLAVE
   rec.maxAlternatives = 5;
 
   const micBtn = document.querySelector(`#card-${mi}-${qi} .mic-btn`);
   const statusEl = document.getElementById(`micstatus-${mi}-${qi}`);
   const resultEl = document.getElementById(`micresult-${mi}-${qi}`);
 
+  if (!micBtn) return;
+
+  // UI START
   micBtn.classList.add('recording');
   micBtn.textContent = '⏹';
+
   if (statusEl) statusEl.textContent = '🔴 Escuchando…';
 
+  // 🎤 RESULTADO MEJORADO
   rec.onresult = (e) => {
-    const heard = Array.from(e.results[0]).map(r => r.transcript.toLowerCase().trim());
+    let transcript = "";
+
+    for (let i = e.resultIndex; i < e.results.length; i++) {
+      transcript += e.results[i][0].transcript;
+    }
+
+    const heard = transcript.toLowerCase().trim();
     const target = targetText.toLowerCase().trim();
-    const best = heard[0];
 
     if (resultEl) {
-      resultEl.textContent = `Detecté: "${best}"`;
+      resultEl.textContent = `Detecté: "${heard}"`;
       resultEl.className = 'mic-result heard';
     }
 
-    const match = heard.some(h => similarity(h, target) >= 0.70);
-    gradeMic(mi, qi, match, best, targetText);
+    // 🔥 VALIDACIÓN DE AUDIO
+    if (!heard || heard.length < 2) {
+      if (statusEl) statusEl.textContent = "❌ No se detectó voz clara";
+      return;
+    }
+
+    // 🔥 MÁS FLEXIBLE
+    const match = similarity(heard, target) >= 0.6;
+
+    gradeMic(mi, qi, match, heard, targetText);
   };
 
   rec.onerror = (e) => {
     micBtn.classList.remove('recording');
     micBtn.textContent = '🎤';
-    if (statusEl) statusEl.textContent = e.error === 'not-allowed'
-      ? '❌ Permiso de micrófono denegado'
-      : '❌ No se pudo escuchar. Intenta de nuevo.';
+
+    if (statusEl) {
+      statusEl.textContent = e.error === 'not-allowed'
+        ? '❌ Permiso de micrófono denegado'
+        : '❌ No se pudo escuchar. Intenta de nuevo.';
+    }
   };
 
   rec.onend = () => {
     micBtn.classList.remove('recording');
     micBtn.textContent = '🎤';
-    if (statusEl && statusEl.textContent === '🔴 Escuchando…')
+
+    if (statusEl && statusEl.textContent === '🔴 Escuchando…') {
       statusEl.textContent = 'Toca el micrófono para intentar de nuevo.';
+    }
   };
 
-  rec.start();
+  // 🔥 DELAY CLAVE PARA CHROME
+  setTimeout(() => {
+    rec.start();
+  }, 200);
 
-  micBtn.onclick = () => { rec.stop(); };
+  micBtn.onclick = () => rec.stop();
 }
 
+// 🔎 COMPARACIÓN
 function similarity(a, b) {
-  a = a.replace(/[^a-z0-9 ]/g,''); b = b.replace(/[^a-z0-9 ]/g,'');
+  a = a.replace(/[^a-z0-9 ]/g,'');
+  b = b.replace(/[^a-z0-9 ]/g,'');
+
   if (a === b) return 1;
-  const wordsA = a.split(' '); const wordsB = b.split(' ');
+
+  const wordsA = a.split(' ');
+  const wordsB = b.split(' ');
+
   const common = wordsA.filter(w => wordsB.includes(w)).length;
+
   return (2 * common) / (wordsA.length + wordsB.length);
 }
   
