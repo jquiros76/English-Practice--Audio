@@ -904,7 +904,7 @@ function pickOpt(mi, qi, oi) {
 // ─── SPEAKING ANSWER ──────────────────────────────────────────────────────────
 function startRecognition(phrase, mi, qi) {
   if (state[mi][qi].answered) return;
-  runRecognition(phrase, `card-${mi}-${qi}`, qi, mi);
+  runRecognition(phrase, qi, mi);
 }
 function gradeMic(mi, qi, correct, heard, target) {
   const q = MODULES[mi].qs[qi];
