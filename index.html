@@ -290,10 +290,17 @@ async function speak(text, btn) {
     });
 
     if (!res.ok) {
-      console.error("TTS error:", res.status);
-      if (btn) btn.textContent = '❌';
-      return;
-    }
+  console.error("TTS error:", res.status);
+
+  // 🔥 FALLBACK NATIVO
+  const utter = new SpeechSynthesisUtterance(text);
+  utter.rate = speechRate || 1;
+  utter.lang = 'en-US';
+  speechSynthesis.speak(utter);
+
+  if (btn) btn.textContent = '▶';
+  return;
+}
 
     const data = await res.json();
 
@@ -320,10 +327,16 @@ async function speak(text, btn) {
 
     if (btn) btn.textContent = '▶';
 
-  } catch (err) {
-    console.error("TTS FALLÓ:", err);
-    if (btn) btn.textContent = '❌';
-  }
+ } catch (err) {
+  console.error("TTS FALLÓ:", err);
+
+  // 🔥 FALLBACK TAMBIÉN AQUÍ
+  const utter = new SpeechSynthesisUtterance(text);
+  utter.rate = speechRate || 1;
+  utter.lang = 'en-US';
+  speechSynthesis.speak(utter);
+
+  if (btn) btn.textContent = '▶';
 }
 // ─── SPEECH RECOGNITION ───────────────────────────────────────────────────────
 const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
@@ -831,8 +844,7 @@ data-text="${q.audio}">▶</button>
       <div class="mic-box">
         <div class="mic-target">"${q.audio || q.phrase}"</div>
         <div class="mic-phonetic">${q.phonetic}</div>
-        <button class="mic-btn" id="mic-${mi}-${qi}" onclick= onclick="startRecognition(this.dataset.text,${mi},${qi})"
-data-text="${q.audio || q.phrase}"
+       <button class="mic-btn" data-text="${(q.audio || q.phrase).replace(/"/g, '&quot;')}"  onclick="startRecognition(this.dataset.text,${mi},${qi})">🎤</button>
         <div class="mic-status" id="micstatus-${mi}-${qi}">Toca el micrófono y habla</div>
         <div class="mic-result" id="micresult-${mi}-${qi}"></div>
         <div class="no-support" id="nosupport-${mi}-${qi}">⚠️ Tu navegador no soporta reconocimiento de voz. Usa Chrome en Android o escritorio.</div>
