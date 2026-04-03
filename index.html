@@ -354,7 +354,7 @@ function runRecognition(targetText, cardId, qi, mi) {
   // 🔥 CONFIG MEJORADA
   rec.lang = 'en-US';
   rec.continuous = false;
-  rec.interimResults = true;
+  rec.interimResults = false;
   rec.maxAlternatives = 5;
 
   const micBtn = document.querySelector(`#card-${mi}-${qi} .mic-btn`);
@@ -378,7 +378,7 @@ function runRecognition(targetText, cardId, qi, mi) {
     transcript += e.results[i][0].transcript;
   }
 
-  const heard = transcript.toLowerCase().trim();
+  const heard = transcript ? transcript.toLowerCase().trim() : "";
   const target = targetText.toLowerCase().trim();
 
   // Mostrar lo que detectó (simple)
@@ -387,7 +387,7 @@ function runRecognition(targetText, cardId, qi, mi) {
   }
 
   // Validación básica
-  if (!heard || heard.length < 2) {
+  if (!heard || heard.length < 3) {
     if (statusEl) statusEl.textContent = "No se detectó voz clara";
     return;
   }
